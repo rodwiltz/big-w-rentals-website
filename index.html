@@ -18,11 +18,11 @@
 
 <section class="step" data-step="2" hidden><p class="stepno">STEP 3 OF 6</p><h2>Enter delivery location</h2><p>We need the complete location to determine delivery distance.</p>
 <div class="fields"><label class="wide">Street address<input name="address1" autocomplete="street-address" required></label><label class="wide">Apt / Suite <small>(optional)</small><input name="address2"></label><label>City<input name="city" required></label><label>State<input name="state" value="TX" maxlength="2" required></label><label>ZIP Code<input name="zipCode" inputmode="numeric" maxlength="10" required></label></div>
-<div class="notice">Delivery is $1.50 per mile. Automatic routing is not enabled in this MVP, so the delivery amount will be confirmed after review.</div><p id="locationErr" class="err" hidden></p>
+<div class="notice">Delivery is calculated from Big W Rentals to your entered delivery address at $1.50 per mile.</div><p id="locationErr" class="err" hidden></p>
 <div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>View Estimate</button></div></section>
 
-<section class="step" data-step="3" hidden><p class="stepno">STEP 4 OF 6</p><h2>View rental estimate</h2><div class="estimate"><div><span>Rental</span><strong id="rentalEstimate">$0.00</strong></div><div><span>Delivery</span><strong>Pending distance calculation</strong></div><div class="total"><span>Estimated Total</span><strong id="totalEstimate">Rental + delivery</strong></div></div>
-<div class="notice"><b>Availability has not been confirmed.</b><br>Big W Rentals will review your rental period, inventory, and delivery location.</div>
+<section class="step" data-step="3" hidden><p class="stepno">STEP 4 OF 6</p><h2>View rental estimate</h2><div class="estimate"><div><span>Rental subtotal</span><strong id="rentalEstimate">$0.00</strong></div><div><span>Delivery</span><strong id="deliveryEstimate">Calculating…</strong></div><div class="total"><span>Estimated Total</span><strong id="totalEstimate">Calculating…</strong></div></div>
+<div class="notice"><b>Availability has not been confirmed.</b><br>Delivery is an estimate based on the current driving route. Big W Rentals will review your rental period, inventory, and delivery location.</div>
 <div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>Continue</button></div></section>
 
 <section class="step" data-step="4" hidden><p class="stepno">STEP 5 OF 6</p><h2>Contact information</h2><p>Big W will follow up by text after reviewing your request.</p>
