@@ -22,10 +22,51 @@
 
 <section class="section" id="rentals"><div class="shell"><div class="heading"><p class="eyebrow dark">BUILD YOUR RENTAL</p><h2>Start with what you need.</h2><p>Browse first. Event details come later.</p></div>
 <div class="cards">
-<article><div class="placeholder media">TABLE PHOTO<br><small>assets/photos/table.jpg</small></div><div class="body"><h3>Tables</h3><b>$8 each</b><button class="btn purple" data-add="tables">Add Tables</button></div></article>
-<article><div class="placeholder media">CHAIR PHOTO<br><small>assets/photos/chair.jpg</small></div><div class="body"><h3>Chairs</h3><b>$2 each</b><button class="btn purple" data-add="chairs">Add Chairs</button></div></article>
-<article><div class="placeholder media">PACKAGE PHOTO<br><small>assets/photos/package-3-tables-20-chairs.jpg</small></div><div class="body"><h3>3 Tables + 20 Chairs</h3><b>$50 package</b><button class="btn gold" data-package>Add Package</button></div></article>
+<article class="rental-card">
+      <div class="placeholder media">TABLE PHOTO<br><small>assets/photos/table.jpg</small></div>
+      <div class="body">
+        <div><h3>Tables</h3><b>$8 each</b></div>
+        <div class="card-select">
+          <span>Quantity</span>
+          <div class="stepper">
+            <button type="button" data-card-qty="tables" data-delta="-1" aria-label="Remove one table">−</button>
+            <input id="cardTables" type="number" min="0" value="0" inputmode="numeric" aria-label="Table quantity">
+            <button type="button" data-card-qty="tables" data-delta="1" aria-label="Add one table">+</button>
+          </div>
+        </div>
+      </div>
+    </article>
+<article class="rental-card">
+      <div class="placeholder media">CHAIR PHOTO<br><small>assets/photos/chair.jpg</small></div>
+      <div class="body">
+        <div><h3>Chairs</h3><b>$2 each</b></div>
+        <div class="card-select">
+          <span>Quantity</span>
+          <div class="stepper">
+            <button type="button" data-card-qty="chairs" data-delta="-1" aria-label="Remove one chair">−</button>
+            <input id="cardChairs" type="number" min="0" value="0" inputmode="numeric" aria-label="Chair quantity">
+            <button type="button" data-card-qty="chairs" data-delta="1" aria-label="Add one chair">+</button>
+          </div>
+        </div>
+      </div>
+    </article>
+<article class="rental-card">
+      <div class="placeholder media">PACKAGE PHOTO<br><small>assets/photos/package-3-tables-20-chairs.jpg</small></div>
+      <div class="body">
+        <div><h3>3 Tables + 20 Chairs</h3><b>$50 package</b></div>
+        <button class="btn gold full" type="button" data-card-package>Use This Package</button>
+        <p class="package-status" id="packageStatus" hidden>Package selected: 3 tables + 20 chairs.</p>
+      </div>
+    </article>
 </div><p class="note center">Bulk pricing is applied automatically when the qualifying combination is reached.</p>
+    <div class="catalog-continue">
+      <div>
+        <span>Rental subtotal</span>
+        <strong id="catalogSubtotal">$0.00</strong>
+      </div>
+      <button class="btn purple" type="button" id="continueFromCatalog">Continue with Rental</button>
+    </div>
+    <p class="error catalog-error" id="catalogError" hidden></p>
 </div></section>
 
 <section class="section soft"><div class="shell"><div class="heading center"><p class="eyebrow dark">REAL SETUPS. REAL EVENTS.</p><h2>You make it yours.</h2><p>Tables and chairs provided by Big W Rentals. Décor and styling by the customer.</p></div>
@@ -35,28 +76,24 @@
 <div class="pricing"><div><span>TABLE</span><strong>$8</strong><small>each</small></div><div><span>CHAIR</span><strong>$2</strong><small>each</small></div><div><span>PACKAGE</span><strong>$50</strong><small>3 tables + 20 chairs</small></div></div>
 <p class="center"><button data-open class="btn outline">Build My Rental</button></p></div></section>
 
-<section class="builder" id="builder"><div class="shell"><div class="builderintro"><p class="eyebrow">CHECK AVAILABILITY</p><h2>Build your rental.</h2><p>What do you need? When do you need it? Where is it going? How can we reach you?</p></div>
-<form id="rentalBuilder" novalidate><div class="buildgrid"><div class="flow">
+<section class="builder" id="builder"><div class="shell"><div class="builderintro"><p class="eyebrow">CHECK AVAILABILITY</p><h2>Finish your rental request.</h2><p>Your rental is selected. Tell us when you need it, where it is going, and how we can reach you.</p></div>
+<form id="rentalBuilder" novalidate>
+    <input name="tables" type="hidden" value="0">
+    <input name="chairs" type="hidden" value="0">
+    <div class="buildgrid"><div class="flow">
 
-<section class="step open" data-step="items"><button class="stephead" type="button" data-toggle="items"><span>1</span><div><b>Your rental</b><small data-summary="items">Choose tables, chairs, or the package.</small></div></button><div class="content">
-<div class="qty"><div><b>Tables</b><small>$8 each</small></div><div class="stepper"><button type="button" data-qty="tables" data-delta="-1">−</button><input name="tables" type="number" min="0" value="0"><button type="button" data-qty="tables" data-delta="1">+</button></div></div>
-<div class="qty"><div><b>Chairs</b><small>$2 each</small></div><div class="stepper"><button type="button" data-qty="chairs" data-delta="-1">−</button><input name="chairs" type="number" min="0" value="0"><button type="button" data-qty="chairs" data-delta="1">+</button></div></div>
-<button type="button" class="packagebar" data-package><span><b>3 Tables + 20 Chairs</b><small>Quick-select package</small></span><b>$50</b></button>
-<p class="error" id="itemsError" hidden></p><div class="next"><button type="button" class="btn gold" data-next="when">Continue</button></div>
-</div></section>
-
-<section class="step" data-step="when"><button class="stephead" type="button" data-toggle="when"><span>2</span><div><b>When do you need it?</b><small data-summary="when">Rental start and return timing.</small></div></button><div class="content" hidden>
+<section class="step open" data-step="when"><button class="stephead" type="button" data-toggle="when"><span>1</span><div><b>When do you need it?</b><small data-summary="when">Rental start and return timing.</small></div></button><div class="content" hidden>
 <div class="fields"><label>Start date<input name="startDate" type="date"></label><label>Start time<input name="startTime" type="time"></label><label>End date<input name="endDate" type="date"></label><label>End time<input name="endTime" type="time"></label></div>
-<p class="error" id="whenError" hidden></p><div class="split"><button type="button" class="back" data-back="items">Back</button><button type="button" class="btn gold" data-next="where">Continue</button></div>
+<p class="error" id="whenError" hidden></p><div class="split"><button type="button" class="back" data-back-catalog>Back to Rentals</button><button type="button" class="btn gold" data-next="where">Continue</button></div>
 </div></section>
 
-<section class="step" data-step="where"><button class="stephead" type="button" data-toggle="where"><span>3</span><div><b>Where is it going?</b><small data-summary="where">Enter the delivery address.</small></div></button><div class="content" hidden>
+<section class="step" data-step="where"><button class="stephead" type="button" data-toggle="where"><span>2</span><div><b>Where is it going?</b><small data-summary="where">Enter the delivery address.</small></div></button><div class="content" hidden>
 <div class="fields address"><label class="wide">Street address<input name="address1"></label><label class="wide">Apartment / Suite <i>optional</i><input name="address2"></label><label>City<input name="city"></label><label>State<input name="state" value="TX" maxlength="2"></label><label>ZIP code<input name="zipCode" inputmode="numeric"></label></div>
 <p class="note">We use the delivery address to calculate your delivery charge.</p><p class="error" id="whereError" hidden></p>
 <div class="split"><button type="button" class="back" data-back="when">Back</button><button type="button" id="calcDelivery" class="btn gold">Calculate Delivery</button></div>
 </div></section>
 
-<section class="step" data-step="contact"><button class="stephead" type="button" data-toggle="contact"><span>4</span><div><b>How can we reach you?</b><small data-summary="contact">Big W will follow up by text.</small></div></button><div class="content" hidden>
+<section class="step" data-step="contact"><button class="stephead" type="button" data-toggle="contact"><span>3</span><div><b>How can we reach you?</b><small data-summary="contact">Big W will follow up by text.</small></div></button><div class="content" hidden>
 <div class="fields"><label>Your name<input name="name" autocomplete="name"></label><label>Mobile number<input name="mobile" type="tel" autocomplete="tel"></label><label class="wide">Anything else we should know? <i>optional</i><textarea name="notes" rows="4"></textarea></label></div>
 <p class="error" id="contactError" hidden></p><div class="split"><button type="button" class="back" data-back="where">Back</button><button type="button" id="reviewBtn" class="btn gold">Review Request</button></div>
 </div></section>
