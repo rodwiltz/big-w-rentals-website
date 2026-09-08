@@ -1,37 +1,86 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#4B2373"><title>Check Availability | Big W Rentals</title>
-<link rel="icon" href="assets/brand/favicon.ico"><link rel="stylesheet" href="styles.css"></head>
-<body><header><picture><source media="(max-width:720px)" srcset="assets/brand/big-w-rentals-compact.png"><img src="assets/brand/big-w-rentals-primary-horizontal.png" alt="Big W Rentals" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><b hidden>BIG W RENTALS</b></picture><span>Rental Estimate</span></header>
-<main><section class="intro"><p class="eyebrow">BIG W RENTALS</p><h1>Build your rental request.</h1><p>Choose what you need, see the pricing we can calculate now, then send your request for availability review.</p></section>
-<nav class="progress"><ol id="progress"><li class="active">1 Items</li><li>2 Period</li><li>3 Location</li><li>4 Estimate</li><li>5 Contact</li><li>6 Confirm</li></ol></nav>
-<form id="funnel" novalidate>
-<section class="step active" data-step="0"><p class="stepno">STEP 1 OF 6</p><h2>Select items & quantity</h2><p>Your rental price updates immediately.</p>
-<button id="package" type="button" class="package"><span><b>Quick Select</b><strong>3 Tables + 20 Chairs</strong><small>Popular package</small></span><em>$50</em></button>
-<div class="qtygrid"><article><div><h3>6 ft Tables</h3><p>$8 each · bulk $6</p></div><div class="stepper"><button type="button" data-for="tables" data-delta="-1">−</button><input id="tables" name="tables" type="number" min="0" value="0"><button type="button" data-for="tables" data-delta="1">+</button></div></article>
-<article><div><h3>Folding Chairs</h3><p>$2 each · bulk $1.50</p></div><div class="stepper"><button type="button" data-for="chairs" data-delta="-1">−</button><input id="chairs" name="chairs" type="number" min="0" value="0"><button type="button" data-for="chairs" data-delta="1">+</button></div></article></div>
-<div class="price"><span>Rental estimate</span><strong id="subtotal">$0.00</strong></div><p id="itemsErr" class="err" hidden></p><div class="actions end"><button type="button" class="primary" data-next>Continue</button></div></section>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Table & Chair Rentals in Pearland, TX | Big W Rentals</title>
+<meta name="description" content="Table and chair rentals in Pearland, TX with local delivery.">
+<link rel="icon" href="assets/brand/favicon.ico"><link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<header><div class="shell navrow">
+<a class="brand" href="#top"><picture><source media="(max-width:640px)" srcset="assets/brand/big-w-rentals-compact.png"><img src="assets/brand/big-w-rentals-primary-horizontal.png" alt="Big W Rentals" onerror="this.hidden=true;this.parentElement.nextElementSibling.hidden=false"></picture><span hidden>BIG W RENTALS</span></a>
+<button id="menu" class="menu" aria-expanded="false" aria-controls="nav">☰</button>
+<nav id="nav"><a href="#rentals">Rentals</a><a href="#pricing">Pricing</a><a href="#why">Why Big W</a><a href="#faq">FAQ</a><button data-open class="btn purple">Check Availability</button></nav>
+</div></header>
 
-<section class="step" data-step="1" hidden><p class="stepno">STEP 2 OF 6</p><h2>Select rental period</h2><p>This is the requested possession period and does not confirm availability.</p>
-<div class="fields"><label>Start date<input name="startDate" type="date" required></label><label>Start time<input name="startTime" type="time" required></label><label>End date<input name="endDate" type="date" required></label><label>End time<input name="endTime" type="time" required></label></div>
-<p id="periodErr" class="err" hidden></p><div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>Continue</button></div></section>
+<main id="main">
+<section class="hero" id="top"><div class="placeholder heroimg">PRODUCTION HERO PHOTO<br><small>assets/photos/hero-event.jpg</small></div><div class="shade"></div><div class="shell herocopy">
+<p class="eyebrow">BIG W RENTALS</p><h1>Table & Chair Rentals in <em>Pearland, TX</em></h1><p>Simple rentals. Reliable delivery. Events made easy.</p>
+<div class="actions"><a href="#rentals" class="btn gold">Browse Rentals</a><button data-open class="btn ghost">Check Availability</button></div>
+</div></section>
 
-<section class="step" data-step="2" hidden><p class="stepno">STEP 3 OF 6</p><h2>Enter delivery location</h2><p>We need the complete location to determine delivery distance.</p>
-<div class="fields"><label class="wide">Street address<input name="address1" autocomplete="street-address" required></label><label class="wide">Apt / Suite <small>(optional)</small><input name="address2"></label><label>City<input name="city" required></label><label>State<input name="state" value="TX" maxlength="2" required></label><label>ZIP Code<input name="zipCode" inputmode="numeric" maxlength="10" required></label></div>
-<div class="notice">Delivery is calculated from Big W Rentals to your entered delivery address at $1.50 per mile.</div><p id="locationErr" class="err" hidden></p>
-<div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>View Estimate</button></div></section>
+<section class="section" id="rentals"><div class="shell"><div class="heading"><p class="eyebrow dark">BUILD YOUR RENTAL</p><h2>Start with what you need.</h2><p>Browse first. Event details come later.</p></div>
+<div class="cards">
+<article><div class="placeholder media">TABLE PHOTO<br><small>assets/photos/table.jpg</small></div><div class="body"><h3>Tables</h3><b>$8 each</b><button class="btn purple" data-add="tables">Add Tables</button></div></article>
+<article><div class="placeholder media">CHAIR PHOTO<br><small>assets/photos/chair.jpg</small></div><div class="body"><h3>Chairs</h3><b>$2 each</b><button class="btn purple" data-add="chairs">Add Chairs</button></div></article>
+<article><div class="placeholder media">PACKAGE PHOTO<br><small>assets/photos/package-3-tables-20-chairs.jpg</small></div><div class="body"><h3>3 Tables + 20 Chairs</h3><b>$50 package</b><button class="btn gold" data-package>Add Package</button></div></article>
+</div><p class="note center">Bulk pricing is applied automatically when the qualifying combination is reached.</p>
+</div></section>
 
-<section class="step" data-step="3" hidden><p class="stepno">STEP 4 OF 6</p><h2>View rental estimate</h2><div class="estimate"><div><span>Rental subtotal</span><strong id="rentalEstimate">$0.00</strong></div><div><span>Delivery</span><strong id="deliveryEstimate">Calculating…</strong></div><div class="total"><span>Estimated Total</span><strong id="totalEstimate">Calculating…</strong></div></div>
-<div class="notice"><b>Availability has not been confirmed.</b><br>Delivery is an estimate based on the current driving route. Big W Rentals will review your rental period, inventory, and delivery location.</div>
-<div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>Continue</button></div></section>
+<section class="section soft"><div class="shell"><div class="heading center"><p class="eyebrow dark">REAL SETUPS. REAL EVENTS.</p><h2>You make it yours.</h2><p>Tables and chairs provided by Big W Rentals. Décor and styling by the customer.</p></div>
+<div class="twophotos"><div class="placeholder">REAL SETUP — BEFORE<br><small>assets/photos/real-setup-before.jpg</small></div><div class="placeholder">REAL EVENT — AFTER<br><small>assets/photos/real-event-after.jpg</small></div></div></div></section>
 
-<section class="step" data-step="4" hidden><p class="stepno">STEP 5 OF 6</p><h2>Contact information</h2><p>Big W will follow up by text after reviewing your request.</p>
-<div class="fields"><label class="wide">Name<input name="name" autocomplete="name" required></label><label class="wide">Mobile number<input name="mobile" type="tel" autocomplete="tel" required></label><label class="wide">Notes <small>(optional)</small><textarea name="notes" rows="4"></textarea></label></div>
-<p id="contactErr" class="err" hidden></p><div class="actions"><button type="button" data-back>Back</button><button type="button" class="primary" data-next>Review Request</button></div></section>
+<section class="section" id="pricing"><div class="shell"><div class="heading center"><p class="eyebrow dark">POPULAR RENTALS</p><h2>Simple pricing.</h2></div>
+<div class="pricing"><div><span>TABLE</span><strong>$8</strong><small>each</small></div><div><span>CHAIR</span><strong>$2</strong><small>each</small></div><div><span>PACKAGE</span><strong>$50</strong><small>3 tables + 20 chairs</small></div></div>
+<p class="center"><button data-open class="btn outline">Build My Rental</button></p></div></section>
 
-<section class="step" data-step="5" hidden><p class="stepno">STEP 6 OF 6</p><h2>Confirm availability</h2><p>Review your request before sending it.</p><div id="review" class="review"></div>
-<div class="notice"><b>This request does not reserve inventory or create a booking.</b><br>Big W Rentals will review the request and follow up by text.</div>
-<div id="submitMsg" class="submitmsg" hidden></div><div class="actions"><button type="button" data-back>Back</button><button id="confirm" type="submit" class="primary confirm"><span class="ready">CONFIRM AVAILABILITY</span><span class="working" hidden>Sending…</span></button></div></section>
-</form>
-<section id="success" class="success" hidden><div class="check">✓</div><p class="eyebrow">REQUEST RECEIVED</p><h2>We’ve got it.</h2><p>Your request was sent to Big W Rentals. We’ll review availability and follow up by text.</p><p>Lead reference: <strong id="leadRef"></strong></p><button id="newRequest" class="primary">Start Another Request</button></section>
-</main><script src="config.js"></script><script src="app.js"></script></body></html>
+<section class="builder" id="builder"><div class="shell"><div class="builderintro"><p class="eyebrow">CHECK AVAILABILITY</p><h2>Build your rental.</h2><p>What do you need? When do you need it? Where is it going? How can we reach you?</p></div>
+<form id="rentalBuilder" novalidate><div class="buildgrid"><div class="flow">
+
+<section class="step open" data-step="items"><button class="stephead" type="button" data-toggle="items"><span>1</span><div><b>Your rental</b><small data-summary="items">Choose tables, chairs, or the package.</small></div></button><div class="content">
+<div class="qty"><div><b>Tables</b><small>$8 each</small></div><div class="stepper"><button type="button" data-qty="tables" data-delta="-1">−</button><input name="tables" type="number" min="0" value="0"><button type="button" data-qty="tables" data-delta="1">+</button></div></div>
+<div class="qty"><div><b>Chairs</b><small>$2 each</small></div><div class="stepper"><button type="button" data-qty="chairs" data-delta="-1">−</button><input name="chairs" type="number" min="0" value="0"><button type="button" data-qty="chairs" data-delta="1">+</button></div></div>
+<button type="button" class="packagebar" data-package><span><b>3 Tables + 20 Chairs</b><small>Quick-select package</small></span><b>$50</b></button>
+<p class="error" id="itemsError" hidden></p><div class="next"><button type="button" class="btn gold" data-next="when">Continue</button></div>
+</div></section>
+
+<section class="step" data-step="when"><button class="stephead" type="button" data-toggle="when"><span>2</span><div><b>When do you need it?</b><small data-summary="when">Rental start and return timing.</small></div></button><div class="content" hidden>
+<div class="fields"><label>Start date<input name="startDate" type="date"></label><label>Start time<input name="startTime" type="time"></label><label>End date<input name="endDate" type="date"></label><label>End time<input name="endTime" type="time"></label></div>
+<p class="error" id="whenError" hidden></p><div class="split"><button type="button" class="back" data-back="items">Back</button><button type="button" class="btn gold" data-next="where">Continue</button></div>
+</div></section>
+
+<section class="step" data-step="where"><button class="stephead" type="button" data-toggle="where"><span>3</span><div><b>Where is it going?</b><small data-summary="where">Enter the delivery address.</small></div></button><div class="content" hidden>
+<div class="fields address"><label class="wide">Street address<input name="address1"></label><label class="wide">Apartment / Suite <i>optional</i><input name="address2"></label><label>City<input name="city"></label><label>State<input name="state" value="TX" maxlength="2"></label><label>ZIP code<input name="zipCode" inputmode="numeric"></label></div>
+<p class="note">We use the delivery address to calculate your delivery charge.</p><p class="error" id="whereError" hidden></p>
+<div class="split"><button type="button" class="back" data-back="when">Back</button><button type="button" id="calcDelivery" class="btn gold">Calculate Delivery</button></div>
+</div></section>
+
+<section class="step" data-step="contact"><button class="stephead" type="button" data-toggle="contact"><span>4</span><div><b>How can we reach you?</b><small data-summary="contact">Big W will follow up by text.</small></div></button><div class="content" hidden>
+<div class="fields"><label>Your name<input name="name" autocomplete="name"></label><label>Mobile number<input name="mobile" type="tel" autocomplete="tel"></label><label class="wide">Anything else we should know? <i>optional</i><textarea name="notes" rows="4"></textarea></label></div>
+<p class="error" id="contactError" hidden></p><div class="split"><button type="button" class="back" data-back="where">Back</button><button type="button" id="reviewBtn" class="btn gold">Review Request</button></div>
+</div></section>
+
+<section class="review" id="review" hidden><p class="eyebrow">READY TO SEND</p><h3>Review your request.</h3><p>This is an availability request, not a reservation. Big W will review it and follow up by text.</p><div id="reviewDetails"></div><p class="error light" id="submitError" hidden></p><button type="submit" id="confirm" class="btn gold full"><span>Confirm Availability</span><span hidden>Sending…</span></button></section>
+</div>
+
+<aside class="estimate"><p class="eyebrow dark">YOUR ESTIMATE</p><div><span>Rental subtotal</span><b id="subtotal">$0.00</b></div><div><span>Delivery</span><b id="delivery">—</b></div><div class="total"><span>Estimated total</span><b id="total">$0.00</b></div><p class="note">Availability is not confirmed until Big W reviews your request.</p></aside>
+</div></form>
+
+<section class="success" id="success" hidden><div class="check">✓</div><p class="eyebrow dark">REQUEST RECEIVED</p><h2>We’ve got it.</h2><p>Your request was sent to Big W Rentals. We’ll review availability and follow up by text.</p><p>Lead reference: <b id="leadRef"></b></p><button id="again" class="btn purple">Start Another Request</button></section>
+</div></section>
+
+<section class="section" id="why"><div class="shell"><div class="heading center"><p class="eyebrow dark">WHY BIG W RENTALS?</p><h2>Rental help without the runaround.</h2></div><div class="trust"><article><b>Clean equipment</b><p>Rental items are prepared for your event.</p></article><article><b>Clear communication</b><p>You’ll know what Big W needs and what happens next.</p></article><article><b>Reliable delivery</b><p>Delivery is built into the request experience.</p></article><article><b>Simple process</b><p>Browse, build, and check availability in one flow.</p></article></div></div></section>
+
+<section class="section soft"><div class="shell service"><div><p class="eyebrow dark">LOCAL DELIVERY</p><h2>Pearland-centered service.</h2><p>Enter your delivery address while building your rental and the site will calculate the delivery charge before you confirm availability.</p><button data-open class="btn purple">Check My Delivery</button></div><div class="servicebox">PEARLAND<br><small>Delivery calculated from Big W Rentals’ operating origin.</small></div></div></section>
+
+<section class="section" id="faq"><div class="shell narrow"><div class="heading center"><p class="eyebrow dark">FREQUENTLY ASKED QUESTIONS</p><h2>Helpful before you send.</h2></div>
+<details><summary>How do I check availability?</summary><p>Choose what you need, enter rental timing and delivery address, then send your request. Big W will review it and follow up.</p></details>
+<details><summary>How is delivery priced?</summary><p>Your delivery charge is calculated automatically from Big W Rentals’ operating origin to the delivery address you enter.</p></details>
+<details><summary>Does submitting reserve my items?</summary><p>No. Confirm Availability sends a request for review. It does not create a reservation or guarantee availability.</p></details>
+</div></section>
+</main>
+
+<footer><div class="shell foot"><div><a class="footerbrand" href="#top"><img src="assets/brand/big-w-rentals-stacked.png" alt="Big W Rentals" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>BIG W RENTALS</span></a><p>Tables. Chairs. Local delivery.</p></div><div><b>Rentals</b><a href="#rentals">Tables</a><a href="#rentals">Chairs</a><a href="#rentals">3 Tables + 20 Chairs</a></div><div><b>Help</b><a href="#faq">FAQ</a><button data-open>Check Availability</button></div></div></footer>
+<script src="config.js"></script><script src="app.js"></script>
+</body></html>
