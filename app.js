@@ -785,26 +785,47 @@
         );
       }
 
-      const response =
-        await fetch(
+      /*
+       * EWO-BWR-004R3 — SUCCESS RESPONSE RECOVERY
+       *
+       * Keep one immutable payload/clientSubmissionId across both attempts.
+       *
+       * Apps Script ContentService responses are redirected by Google. In
+       * production, the business transaction can complete successfully while
+       * the browser receives an HTML response instead of the expected JSON.
+       *
+       * When that happens, retry the SAME submission once. The accepted
+       * backend's duplicate cache returns LEAD_ALREADY_DELIVERED with the
+       * original BWRL leadId, without sending another lead email.
+       */
+      const submissionPayload =
+        payload();
+
+      let result =
+        await submitLeadRequest_(
           url,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type":
-                "text/plain;charset=utf-8"
-            },
-            body:
-              JSON.stringify(
-                payload()
-              ),
-            redirect:
-              "follow"
-          }
+          submissionPayload
         );
 
-      const result =
-        await response.json();
+      if (
+        result &&
+        result.transportNonJson
+      ) {
+        result =
+          await submitLeadRequest_(
+            url,
+            submissionPayload
+          );
+      }
+
+      if (
+        !result ||
+        result.transportNonJson
+      ) {
+        throw new Error(
+          "Your request was delivered, but the confirmation response could not be loaded. Please try again."
+        );
+      }
 
       if (!result.ok) {
         throw new Error(
@@ -852,6 +873,57 @@
 
     } finally {
       setSending(false);
+    }
+  }
+
+  async function submitLeadRequest_(
+    url,
+    submissionPayload
+  ) {
+    const response =
+      await fetch(
+        url,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+          body:
+            JSON.stringify(
+              submissionPayload
+            ),
+          redirect:
+            "follow"
+        }
+      );
+
+    const responseText =
+      await response.text();
+
+    try {
+      return JSON.parse(
+        responseText
+      );
+    } catch (_) {
+      /*
+       * Do not surface Google's HTML document as a JSON SyntaxError.
+       * The caller treats this as a transport-level uncertainty and retries
+       * once with the same clientSubmissionId.
+       */
+      return {
+        transportNonJson:
+          true,
+
+        httpOk:
+          response.ok,
+
+        status:
+          response.status,
+
+        redirected:
+          response.redirected
+      };
     }
   }
 
