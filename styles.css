@@ -3,3 +3,61 @@
 @media(max-width:900px){.cards,.trust{grid-template-columns:1fr 1fr}.cards article:last-child{grid-column:1/-1}.buildgrid{grid-template-columns:1fr}.estimate{position:static;order:-1}.service{grid-template-columns:1fr}}
 @media(max-width:760px){.menu{display:block}.brand img{width:145px;max-height:44px}nav{display:none;position:absolute;left:18px;right:18px;top:68px;background:#fff;padding:16px;border-radius:12px;box-shadow:0 12px 30px rgba(20,0,30,.15);flex-direction:column;align-items:stretch}nav.open{display:flex}.hero{min-height:560px;align-items:end}.shade{background:linear-gradient(0deg,rgba(32,6,52,.95),rgba(32,6,52,.52))}.herocopy{padding:95px 0 50px}.section{padding:65px 0}.cards,.trust,.twophotos,.pricing,.foot{grid-template-columns:1fr}.cards article:last-child{grid-column:auto}.pricing>div+div{border-left:0;border-top:1px solid var(--line)}.fields,.address{grid-template-columns:1fr}.wide{grid-column:auto}.builder{padding:65px 0}.success{padding:35px 22px}.reviewline{display:grid;gap:4px}.reviewline b{text-align:left}}
 @media(max-width:480px){.shell{width:min(calc(100% - 24px),var(--shell))}.actions{display:grid}.actions .btn{width:100%}.stephead{padding:14px}.content{padding:0 14px 18px}}
+
+/* EWO-BWR-004R — storefront cards are Stage 1 of the builder */
+.rental-card .body { align-content: start; }
+.card-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.card-select > span {
+  color: var(--muted);
+  font-size: .88rem;
+  font-weight: 800;
+}
+.package-status {
+  margin: 0;
+  color: var(--p2);
+  font-size: .86rem;
+  font-weight: 800;
+  text-align: center;
+}
+.catalog-continue {
+  max-width: 540px;
+  margin: 28px auto 0;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: var(--soft);
+}
+.catalog-continue > div {
+  display: grid;
+}
+.catalog-continue span {
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 800;
+}
+.catalog-continue strong {
+  color: var(--p);
+  font-size: 1.4rem;
+}
+.catalog-error {
+  max-width: 540px;
+  margin: 12px auto 0;
+}
+@media(max-width:560px){
+  .catalog-continue {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .catalog-continue .btn { width: 100%; }
+}
