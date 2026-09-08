@@ -1,54 +1,1166 @@
-(()=>{"use strict";
-const f=document.querySelector("#rentalBuilder"),STORE="bwrStorefrontV1",SUB="bwrSubmissionId";
-if(!f)return;
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const tables=f.tables,chairs=f.chairs,sub=$("#subtotal"),del=$("#delivery"),tot=$("#total"),review=$("#review"),reviewDetails=$("#reviewDetails"),confirm=$("#confirm"),success=$("#success"),leadRef=$("#leadRef");
-let pkg=false,quote=null,sending=false; const attr=attribution();
-restore(); update();
+(() => {
+  "use strict";
 
-$("#menu")?.addEventListener("click",()=>{const n=$("#nav"),open=!n.classList.contains("open");n.classList.toggle("open",open);$("#menu").setAttribute("aria-expanded",open)});
-$$("[data-open]").forEach(b=>b.onclick=()=>{open("items");$("#builder").scrollIntoView({behavior:"smooth"});$("#nav")?.classList.remove("open")});
-$$("[data-add]").forEach(b=>b.onclick=()=>{const i=f[b.dataset.add];i.value=Math.max(1,+i.value||0);pkg=false;invalidate();update();open("items");$("#builder").scrollIntoView({behavior:"smooth"})});
-$$("[data-package]").forEach(b=>b.onclick=()=>{tables.value=3;chairs.value=20;pkg=true;invalidate();update();open("items")});
-$$("[data-qty]").forEach(b=>b.onclick=()=>{const i=f[b.dataset.qty];i.value=Math.max(0,Math.floor((+i.value||0)+(+b.dataset.delta)));pkg=false;invalidate();update()});
-[tables,chairs].forEach(i=>i.oninput=()=>{i.value=Math.max(0,Math.floor(+i.value||0));pkg=false;invalidate();update()});
-["address1","address2","city","state","zipCode"].forEach(n=>f[n].addEventListener("input",()=>{invalidate();update()}));
-f.addEventListener("input",()=>{summaries();save()}); f.addEventListener("change",()=>{summaries();save()});
-$$("[data-toggle]").forEach(b=>b.onclick=()=>open(b.dataset.toggle)); $$("[data-back]").forEach(b=>b.onclick=()=>open(b.dataset.back));
-$$("[data-next]").forEach(b=>b.onclick=()=>{if(b.dataset.next==="when"&&!validItems())return;if(b.dataset.next==="where"&&!validWhen())return;open(b.dataset.next)});
-$("#calcDelivery").onclick=calcDelivery; $("#reviewBtn").onclick=prepareReview; $("#again").onclick=reset; f.onsubmit=submit;
+  const form = document.querySelector("#rentalBuilder");
+  if (!form) return;
 
-function pricing(){const t=+tables.value||0,c=+chairs.value||0;if(pkg&&t===3&&c===20)return{t,c,s:50,mode:"3 Tables + 20 Chairs package"};const bulk=t>=3&&c>=20;return{t,c,s:t*(bulk?6:8)+c*(bulk?1.5:2),mode:bulk?"Bulk pricing":"Standard pricing"}}
-function money(v){return"$"+Number(v||0).toFixed(2)}
-function update(){estimate();summaries();save()}
-function invalidate(){quote=null;review.hidden=true;estimate()}
-function estimate(){const p=pricing();sub.textContent=money(p.s);del.textContent=quote?money(quote.deliveryAmount):"—";tot.textContent=money(quote?quote.estimatedTotal:p.s)}
-function summaries(){const p=pricing(),bits=[];if(p.t)bits.push(`${p.t} table${p.t===1?"":"s"}`);if(p.c)bits.push(`${p.c} chair${p.c===1?"":"s"}`);sum("items",bits.length?`${bits.join(" + ")} · ${money(p.s)}`:"Choose tables, chairs, or the package.");
-sum("when",f.startDate.value&&f.startTime.value&&f.endDate.value&&f.endTime.value?`${fmt(f.startDate.value,f.startTime.value)} → ${fmt(f.endDate.value,f.endTime.value)}`:"Rental start and return timing.");
-const a=address();sum("where",a.address1&&a.city&&a.zipCode?a.full:"Enter the delivery address.");sum("contact",f.name.value.trim()&&f.mobile.value.trim()?`${f.name.value.trim()} · ${f.mobile.value.trim()}`:"Big W will follow up by text.")}
-function sum(n,v){const e=$(`[data-summary="${n}"]`);if(e)e.textContent=v}
-function open(name){$$("[data-step]").forEach(s=>{const a=s.dataset.step===name;s.classList.toggle("open",a);s.querySelector(".content").hidden=!a});$(`[data-step="${name}"]`)?.scrollIntoView({behavior:"smooth",block:"center"})}
-function err(id,msg){const e=$("#"+id);e.textContent=msg;e.hidden=false;e.scrollIntoView({behavior:"smooth",block:"nearest"});return false}
-function clear(id){const e=$("#"+id);e.hidden=true;e.textContent=""}
-function validItems(){clear("itemsError");const p=pricing();return(p.t||p.c)?true:err("itemsError","Choose at least one table or chair.")}
-function validWhen(){clear("whenError");const a=f.startDate.value,b=f.startTime.value,c=f.endDate.value,d=f.endTime.value;if(!a||!b||!c||!d)return err("whenError","Enter the complete rental start and end date/time.");return new Date(`${c}T${d}`)>new Date(`${a}T${b}`)?true:err("whenError","The rental end must be after the rental start.")}
-function validWhere(){clear("whereError");return f.address1.value.trim()&&f.city.value.trim()&&f.state.value.trim()&&/^\d{5}(?:-\d{4})?$/.test(f.zipCode.value.trim())?true:err("whereError","Enter the complete delivery address, including a valid ZIP code.")}
-function validContact(){clear("contactError");if(!f.name.value.trim())return err("contactError","Enter your name.");if(!f.mobile.value.trim())return err("contactError","Enter the mobile number where Big W should text you.");return true}
-function address(){const a={address1:f.address1.value.trim(),address2:f.address2.value.trim(),city:f.city.value.trim(),state:f.state.value.trim().toUpperCase(),zipCode:f.zipCode.value.trim()};a.full=[a.address1,a.address2,a.city?`${a.city}, ${a.state} ${a.zipCode}`:""].filter(Boolean).join(", ");return a}
-function sig(){const p=pricing(),a=address();return JSON.stringify({t:p.t,c:p.c,pkg,address1:a.address1,address2:a.address2,city:a.city,state:a.state,zipCode:a.zipCode})}
-async function post(body){const url=window.BWR_CONFIG?.leadApiUrl||"";if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url))throw Error("The Big W Rentals request service is not configured.");const r=await fetch(url,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(body),redirect:"follow"});return r.json()}
-async function calcDelivery(){if(!validItems()||!validWhen()||!validWhere())return;const b=$("#calcDelivery"),old=b.textContent;b.disabled=true;b.textContent="Calculating…";clear("whereError");try{const p=pricing(),r=await post({action:"CALCULATE_DELIVERY",items:{tables:p.t,chairs:p.c,packageSelected:pkg},deliveryAddress:address()});if(!r.ok)throw Error(r.message||"Delivery could not be calculated.");quote={signature:sig(),distanceMiles:+r.distanceMiles,deliveryRatePerMile:+r.deliveryRatePerMile,deliveryAmount:+r.deliveryAmount,rentalSubtotal:+r.rentalSubtotal,estimatedTotal:+r.estimatedTotal,deliveryStatus:"CALCULATED"};update();open("contact")}catch(e){quote=null;estimate();err("whereError",e.message||"We could not calculate delivery for that address.")}finally{b.disabled=false;b.textContent=old}}
-function prepareReview(){if(!validItems()||!validWhen()||!validWhere())return;if(!quote||quote.signature!==sig()){err("whereError","Delivery needs to be recalculated for this address.");open("where");return}if(!validContact())return;renderReview();review.hidden=false;review.scrollIntoView({behavior:"smooth",block:"center"})}
-function renderReview(){const p=pricing(),a=address(),items=[p.t?`${p.t} table${p.t===1?"":"s"}`:"",p.c?`${p.c} chair${p.c===1?"":"s"}`:""].filter(Boolean).join(" + ");reviewDetails.innerHTML=line("Rental",`${esc(items)} · ${money(p.s)}`)+line("When",`${esc(fmt(f.startDate.value,f.startTime.value))}<br>to ${esc(fmt(f.endDate.value,f.endTime.value))}`)+line("Delivery",`${esc(a.full)}<br>${money(quote.deliveryAmount)}`)+line("Estimated total",money(quote.estimatedTotal))+line("Contact",`${esc(f.name.value.trim())}<br>${esc(f.mobile.value.trim())}`)}
-function line(a,b){return`<div class="reviewline"><span>${a}</span><b>${b}</b></div>`}
-function payload(){const p=pricing();return{clientSubmissionId:submissionId(),items:{tables:p.t,chairs:p.c,packageSelected:pkg,pricingMode:p.mode},rentalPeriod:{startDate:f.startDate.value,startTime:f.startTime.value,endDate:f.endDate.value,endTime:f.endTime.value},deliveryAddress:address(),estimate:{rentalSubtotal:p.s,deliveryDistanceMiles:quote?.distanceMiles??null,deliveryAmount:quote?.deliveryAmount??null,deliveryStatus:quote?"CALCULATED":"NOT_CALCULATED",estimatedTotal:quote?.estimatedTotal??null,deliveryRatePerMile:quote?.deliveryRatePerMile??1.5},name:f.name.value.trim(),mobile:f.mobile.value.trim(),notes:f.notes.value.trim(),attribution:attr}}
-async function submit(e){e.preventDefault();if(sending||!validContact())return;if(!quote||quote.signature!==sig()){err("whereError","Delivery needs to be recalculated before confirming availability.");open("where");return}$("#submitError").hidden=true;setSending(true);try{const r=await post(payload());if(!r.ok)throw Error(r.message||"Your request could not be sent.");sessionStorage.removeItem(STORE);sessionStorage.removeItem(SUB);f.hidden=true;$(".builderintro").hidden=true;success.hidden=false;leadRef.textContent=r.leadId||"Received";success.scrollIntoView({behavior:"smooth",block:"center"})}catch(x){const e=$("#submitError");e.textContent=x.message||"Your request could not be sent.";e.hidden=false}finally{setSending(false)}}
-function setSending(v){sending=v;confirm.disabled=v;const s=confirm.querySelectorAll("span");s[0].hidden=v;s[1].hidden=!v}
-function save(){const vals={};new FormData(f).forEach((v,k)=>vals[k]=v);sessionStorage.setItem(STORE,JSON.stringify({pkg,vals,t:+tables.value||0,c:+chairs.value||0,quote}))}
-function restore(){try{const s=JSON.parse(sessionStorage.getItem(STORE)||"null");if(!s)return;pkg=!!s.pkg;Object.entries(s.vals||{}).forEach(([k,v])=>{if(f[k])f[k].value=v});tables.value=s.t||0;chairs.value=s.c||0;quote=s.quote||null;if(quote&&quote.signature!==sig())quote=null}catch(_){quote=null}}
-function reset(){f.reset();f.state.value="TX";tables.value=0;chairs.value=0;pkg=false;quote=null;sessionStorage.removeItem(STORE);sessionStorage.removeItem(SUB);$(".builderintro").hidden=false;f.hidden=false;success.hidden=true;review.hidden=true;update();open("items")}
-function submissionId(){let id=sessionStorage.getItem(SUB);if(!id){id=crypto.randomUUID?crypto.randomUUID():`${Date.now()}-${Math.random()}`;sessionStorage.setItem(SUB,id)}return id}
-function attribution(){const q=new URLSearchParams(location.search),r=document.referrer||"";let s=q.get("utm_source")||"";if(!s)s=/google\./i.test(r)?"Google":/facebook\.|fb\./i.test(r)?"Facebook":r?"Referral":"Direct";return{leadSource:s,sourceDetail:q.get("source_detail")||"",landingPage:location.href,referrer:r,utmSource:q.get("utm_source")||"",utmMedium:q.get("utm_medium")||"",utmCampaign:q.get("utm_campaign")||"",utmContent:q.get("utm_content")||"",utmTerm:q.get("utm_term")||""}}
-function fmt(d,t){return new Date(`${d}T${t}:00`).toLocaleString([],{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}
-function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+  const STORE = "bwrStorefrontV2";
+  const SUB = "bwrSubmissionId";
+
+  const $ = (selector) => document.querySelector(selector);
+  const $$ = (selector) => [...document.querySelectorAll(selector)];
+
+  const tables = form.elements.tables;
+  const chairs = form.elements.chairs;
+  const cardTables = $("#cardTables");
+  const cardChairs = $("#cardChairs");
+
+  const subtotal = $("#subtotal");
+  const delivery = $("#delivery");
+  const total = $("#total");
+  const catalogSubtotal = $("#catalogSubtotal");
+
+  const review = $("#review");
+  const reviewDetails = $("#reviewDetails");
+  const confirm = $("#confirm");
+  const success = $("#success");
+  const leadRef = $("#leadRef");
+
+  let packageSelected = false;
+  let deliveryQuote = null;
+  let quoteBusy = false;
+  let sending = false;
+
+  const attribution = getAttribution();
+
+  restore();
+  syncCardControls();
+  updateAll();
+
+  $("#menu")?.addEventListener("click", () => {
+    const nav = $("#nav");
+    const open = !nav.classList.contains("open");
+    nav.classList.toggle("open", open);
+    $("#menu").setAttribute("aria-expanded", String(open));
+  });
+
+  // Header/hero/pricing CTAs now take the customer to Stage 1: storefront cards.
+  $$("[data-open]").forEach((button) => {
+    button.addEventListener("click", () => {
+      $("#nav")?.classList.remove("open");
+      $("#rentals").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  });
+
+  $$("[data-card-qty]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const name = button.dataset.cardQty;
+      const input = name === "tables" ? cardTables : cardChairs;
+      input.value = Math.max(
+        0,
+        Math.floor((Number(input.value) || 0) + Number(button.dataset.delta))
+      );
+
+      packageSelected = false;
+      syncRentalStateFromCards();
+    });
+  });
+
+  [cardTables, cardChairs].forEach((input) => {
+    input.addEventListener("input", () => {
+      input.value = Math.max(0, Math.floor(Number(input.value) || 0));
+      packageSelected = false;
+      syncRentalStateFromCards();
+    });
+  });
+
+  $("[data-card-package]")?.addEventListener("click", () => {
+    cardTables.value = 3;
+    cardChairs.value = 20;
+    packageSelected = true;
+    syncRentalStateFromCards();
+    $("#packageStatus").hidden = false;
+  });
+
+  $("#continueFromCatalog")?.addEventListener("click", () => {
+    clearError("catalogError");
+
+    if (!validateItems()) {
+      $("#catalogError").textContent = "Choose at least one table or chair.";
+      $("#catalogError").hidden = false;
+      return;
+    }
+
+    openStep("when");
+    $("#builder").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  ["address1", "address2", "city", "state", "zipCode"].forEach((name) => {
+    form.elements[name].addEventListener("input", () => {
+      invalidateDeliveryQuote();
+      updateAll();
+    });
+  });
+
+  form.addEventListener("input", () => {
+    renderSummaries();
+    save();
+  });
+
+  form.addEventListener("change", () => {
+    renderSummaries();
+    save();
+  });
+
+  $$("[data-toggle]").forEach((button) => {
+    button.addEventListener("click", () => openStep(button.dataset.toggle));
+  });
+
+  $$("[data-back]").forEach((button) => {
+    button.addEventListener("click", () => openStep(button.dataset.back));
+  });
+
+  $("[data-back-catalog]")?.addEventListener("click", () => {
+    $("#rentals").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  $$("[data-next]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const next = button.dataset.next;
+
+      if (next === "where" && !validateWhen()) return;
+
+      openStep(next);
+    });
+  });
+
+  $("#calcDelivery").addEventListener("click", calculateDelivery);
+  $("#reviewBtn").addEventListener("click", prepareReview);
+  $("#again").addEventListener("click", reset);
+  form.addEventListener("submit", submit);
+
+  function pricing() {
+    const t = Number(tables.value) || 0;
+    const c = Number(chairs.value) || 0;
+
+    if (
+      packageSelected &&
+      t === 3 &&
+      c === 20
+    ) {
+      return {
+        t,
+        c,
+        s: 50,
+        mode: "3 Tables + 20 Chairs package"
+      };
+    }
+
+    const bulk =
+      t >= 3 &&
+      c >= 20;
+
+    return {
+      t,
+      c,
+      s:
+        t * (bulk ? 6 : 8) +
+        c * (bulk ? 1.5 : 2),
+      mode:
+        bulk
+          ? "Bulk pricing"
+          : "Standard pricing"
+    };
+  }
+
+  function syncRentalStateFromCards() {
+    tables.value = Number(cardTables.value) || 0;
+    chairs.value = Number(cardChairs.value) || 0;
+
+    if (!(packageSelected && Number(tables.value) === 3 && Number(chairs.value) === 20)) {
+      $("#packageStatus").hidden = true;
+    }
+
+    invalidateDeliveryQuote();
+    updateAll();
+  }
+
+  function syncCardControls() {
+    cardTables.value = Number(tables.value) || 0;
+    cardChairs.value = Number(chairs.value) || 0;
+    $("#packageStatus").hidden = !(packageSelected && Number(tables.value) === 3 && Number(chairs.value) === 20);
+  }
+
+  function invalidateDeliveryQuote() {
+    deliveryQuote = null;
+    review.hidden = true;
+    renderEstimate();
+  }
+
+  function updateAll() {
+    renderEstimate();
+    renderSummaries();
+    save();
+  }
+
+  function renderEstimate() {
+    const p = pricing();
+
+    subtotal.textContent = money(p.s);
+    catalogSubtotal.textContent = money(p.s);
+
+    if (!deliveryQuote) {
+      delivery.textContent = "—";
+      total.textContent = money(p.s);
+      return;
+    }
+
+    // Accepted EWO-BWR-003R1 customer presentation:
+    // amount only; no mileage and no per-mile rate.
+    delivery.textContent =
+      money(deliveryQuote.deliveryAmount);
+
+    total.textContent =
+      money(deliveryQuote.estimatedTotal);
+  }
+
+  function renderSummaries() {
+    if (
+      form.startDate.value &&
+      form.startTime.value &&
+      form.endDate.value &&
+      form.endTime.value
+    ) {
+      setSummary(
+        "when",
+        `${formatDateTime(form.startDate.value, form.startTime.value)} → ${formatDateTime(form.endDate.value, form.endTime.value)}`
+      );
+    } else {
+      setSummary("when", "Rental start and return timing.");
+    }
+
+    const a = currentAddress();
+
+    setSummary(
+      "where",
+      a.address1 && a.city && a.zipCode
+        ? a.full
+        : "Enter the delivery address."
+    );
+
+    setSummary(
+      "contact",
+      form.name.value.trim() && form.mobile.value.trim()
+        ? `${form.name.value.trim()} · ${form.mobile.value.trim()}`
+        : "Big W will follow up by text."
+    );
+  }
+
+  function setSummary(name, value) {
+    const element = $(`[data-summary="${name}"]`);
+    if (element) element.textContent = value;
+  }
+
+  function openStep(name) {
+    $$("[data-step]").forEach((section) => {
+      const active = section.dataset.step === name;
+      section.classList.toggle("open", active);
+      section.querySelector(".content").hidden = !active;
+    });
+
+    $(`[data-step="${name}"]`)?.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
+
+  function validateItems() {
+    const p = pricing();
+    return Boolean(p.t || p.c);
+  }
+
+  function validateWhen() {
+    clearError("whenError");
+
+    const startDate = form.startDate.value;
+    const startTime = form.startTime.value;
+    const endDate = form.endDate.value;
+    const endTime = form.endTime.value;
+
+    if (!startDate || !startTime || !endDate || !endTime) {
+      return showError(
+        "whenError",
+        "Enter the complete rental start and end date/time."
+      );
+    }
+
+    if (
+      !(
+        new Date(`${endDate}T${endTime}`) >
+        new Date(`${startDate}T${startTime}`)
+      )
+    ) {
+      return showError(
+        "whenError",
+        "The rental end must be after the rental start."
+      );
+    }
+
+    return true;
+  }
+
+  function validateWhere() {
+    clearError("whereError");
+
+    if (
+      !form.address1.value.trim() ||
+      !form.city.value.trim() ||
+      !form.state.value.trim() ||
+      !/^\d{5}(?:-\d{4})?$/.test(
+        form.zipCode.value.trim()
+      )
+    ) {
+      return showError(
+        "whereError",
+        "Enter the complete delivery address, including a valid ZIP code."
+      );
+    }
+
+    return true;
+  }
+
+  function validateContact() {
+    clearError("contactError");
+
+    if (!form.name.value.trim()) {
+      return showError(
+        "contactError",
+        "Enter your name."
+      );
+    }
+
+    if (!form.mobile.value.trim()) {
+      return showError(
+        "contactError",
+        "Enter the mobile number where Big W should text you."
+      );
+    }
+
+    return true;
+  }
+
+  function currentAddress() {
+    const address = {
+      address1:
+        form.address1.value.trim(),
+
+      address2:
+        form.address2.value.trim(),
+
+      city:
+        form.city.value.trim(),
+
+      state:
+        form.state.value
+          .trim()
+          .toUpperCase(),
+
+      zipCode:
+        form.zipCode.value.trim()
+    };
+
+    address.full =
+      [
+        address.address1,
+        address.address2,
+        address.city
+          ? `${address.city}, ${address.state} ${address.zipCode}`
+          : ""
+      ]
+        .filter(Boolean)
+        .join(", ");
+
+    return address;
+  }
+
+  function quoteSignature() {
+    const p = pricing();
+    const address = currentAddress();
+
+    return JSON.stringify({
+      t: p.t,
+      c: p.c,
+      packageSelected:
+        packageSelected,
+      address1:
+        address.address1,
+      address2:
+        address.address2,
+      city:
+        address.city,
+      state:
+        address.state,
+      zipCode:
+        address.zipCode
+    });
+  }
+
+  /*
+   * DELIVERY RESTORATION
+   *
+   * This request/response sequence is intentionally restored from the
+   * accepted EWO-BWR-003R1 implementation rather than redesigned.
+   */
+  async function calculateDelivery() {
+    if (
+      !validateItems() ||
+      !validateWhen() ||
+      !validateWhere()
+    ) {
+      return;
+    }
+
+    const signature =
+      quoteSignature();
+
+    if (
+      deliveryQuote &&
+      deliveryQuote.signature === signature
+    ) {
+      openStep("contact");
+      return;
+    }
+
+    const url =
+      window.BWR_CONFIG?.leadApiUrl ||
+      "";
+
+    if (
+      !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
+        url
+      )
+    ) {
+      return showError(
+        "whereError",
+        "The delivery calculation service has not been configured yet."
+      );
+    }
+
+    if (quoteBusy) {
+      return;
+    }
+
+    quoteBusy = true;
+
+    const button =
+      $("#calcDelivery");
+
+    const originalText =
+      button.textContent;
+
+    button.disabled =
+      true;
+
+    button.textContent =
+      "Calculating delivery…";
+
+    clearError("whereError");
+
+    try {
+      const p =
+        pricing();
+
+      const response =
+        await fetch(
+          url,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "text/plain;charset=utf-8"
+            },
+            body:
+              JSON.stringify({
+                action:
+                  "CALCULATE_DELIVERY",
+
+                items: {
+                  tables:
+                    p.t,
+
+                  chairs:
+                    p.c,
+
+                  packageSelected:
+                    packageSelected
+                },
+
+                deliveryAddress:
+                  currentAddress()
+              }),
+            redirect:
+              "follow"
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (!result.ok) {
+        throw new Error(
+          result.message ||
+          "Delivery could not be calculated."
+        );
+      }
+
+      deliveryQuote = {
+        signature:
+          signature,
+
+        distanceMiles:
+          Number(
+            result.distanceMiles
+          ),
+
+        deliveryRatePerMile:
+          Number(
+            result.deliveryRatePerMile
+          ),
+
+        deliveryAmount:
+          Number(
+            result.deliveryAmount
+          ),
+
+        rentalSubtotal:
+          Number(
+            result.rentalSubtotal
+          ),
+
+        estimatedTotal:
+          Number(
+            result.estimatedTotal
+          ),
+
+        deliveryStatus:
+          "CALCULATED"
+      };
+
+      renderEstimate();
+      save();
+      openStep("contact");
+
+    } catch (error) {
+      deliveryQuote =
+        null;
+
+      renderEstimate();
+
+      showError(
+        "whereError",
+        error.message ||
+        "We could not calculate delivery for that address. Please check the address and try again."
+      );
+
+    } finally {
+      quoteBusy =
+        false;
+
+      button.disabled =
+        false;
+
+      button.textContent =
+        originalText;
+    }
+  }
+
+  function prepareReview() {
+    if (
+      !validateItems() ||
+      !validateWhen() ||
+      !validateWhere()
+    ) {
+      return;
+    }
+
+    if (
+      !deliveryQuote ||
+      deliveryQuote.signature !==
+        quoteSignature()
+    ) {
+      showError(
+        "whereError",
+        "Delivery needs to be recalculated for this address."
+      );
+
+      openStep("where");
+      return;
+    }
+
+    if (!validateContact()) {
+      return;
+    }
+
+    renderReview();
+    review.hidden =
+      false;
+
+    review.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+  }
+
+  function renderReview() {
+    const p =
+      pricing();
+
+    const a =
+      currentAddress();
+
+    const items =
+      [
+        p.t
+          ? `${p.t} table${p.t === 1 ? "" : "s"}`
+          : "",
+
+        p.c
+          ? `${p.c} chair${p.c === 1 ? "" : "s"}`
+          : ""
+      ]
+        .filter(Boolean)
+        .join(" + ");
+
+    reviewDetails.innerHTML =
+      line(
+        "Rental",
+        `${escapeHtml(items)} · ${money(p.s)}`
+      ) +
+      line(
+        "When",
+        `${escapeHtml(formatDateTime(form.startDate.value, form.startTime.value))}<br>to ${escapeHtml(formatDateTime(form.endDate.value, form.endTime.value))}`
+      ) +
+      line(
+        "Delivery",
+        `${escapeHtml(a.full)}<br>${money(deliveryQuote.deliveryAmount)}`
+      ) +
+      line(
+        "Estimated total",
+        money(deliveryQuote.estimatedTotal)
+      ) +
+      line(
+        "Contact",
+        `${escapeHtml(form.name.value.trim())}<br>${escapeHtml(form.mobile.value.trim())}`
+      );
+  }
+
+  function line(label, value) {
+    return `<div class="reviewline"><span>${label}</span><b>${value}</b></div>`;
+  }
+
+  function payload() {
+    const p =
+      pricing();
+
+    return {
+      clientSubmissionId:
+        getSubmissionId(),
+
+      items: {
+        tables:
+          p.t,
+
+        chairs:
+          p.c,
+
+        packageSelected:
+          packageSelected,
+
+        pricingMode:
+          p.mode
+      },
+
+      rentalPeriod: {
+        startDate:
+          form.startDate.value,
+
+        startTime:
+          form.startTime.value,
+
+        endDate:
+          form.endDate.value,
+
+        endTime:
+          form.endTime.value
+      },
+
+      deliveryAddress:
+        currentAddress(),
+
+      estimate: {
+        rentalSubtotal:
+          p.s,
+
+        deliveryDistanceMiles:
+          deliveryQuote
+            ? deliveryQuote.distanceMiles
+            : null,
+
+        deliveryAmount:
+          deliveryQuote
+            ? deliveryQuote.deliveryAmount
+            : null,
+
+        deliveryStatus:
+          deliveryQuote
+            ? "CALCULATED"
+            : "NOT_CALCULATED",
+
+        estimatedTotal:
+          deliveryQuote
+            ? deliveryQuote.estimatedTotal
+            : null,
+
+        deliveryRatePerMile:
+          deliveryQuote
+            ? deliveryQuote.deliveryRatePerMile
+            : 1.5
+      },
+
+      name:
+        form.name.value.trim(),
+
+      mobile:
+        form.mobile.value.trim(),
+
+      notes:
+        form.notes.value.trim(),
+
+      attribution:
+        attribution
+    };
+  }
+
+  async function submit(event) {
+    event.preventDefault();
+
+    if (
+      sending ||
+      !validateContact()
+    ) {
+      return;
+    }
+
+    if (
+      !deliveryQuote ||
+      deliveryQuote.signature !==
+        quoteSignature()
+    ) {
+      showError(
+        "whereError",
+        "Delivery needs to be recalculated before confirming availability."
+      );
+
+      openStep("where");
+      return;
+    }
+
+    $("#submitError").hidden =
+      true;
+
+    setSending(true);
+
+    try {
+      const url =
+        window.BWR_CONFIG?.leadApiUrl ||
+        "";
+
+      if (
+        !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(
+          url
+        )
+      ) {
+        throw new Error(
+          "The Big W Rentals request service is not configured."
+        );
+      }
+
+      const response =
+        await fetch(
+          url,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "text/plain;charset=utf-8"
+            },
+            body:
+              JSON.stringify(
+                payload()
+              ),
+            redirect:
+              "follow"
+          }
+        );
+
+      const result =
+        await response.json();
+
+      if (!result.ok) {
+        throw new Error(
+          result.message ||
+          "Your request could not be sent."
+        );
+      }
+
+      sessionStorage.removeItem(
+        STORE
+      );
+
+      sessionStorage.removeItem(
+        SUB
+      );
+
+      form.hidden =
+        true;
+
+      $(".builderintro").hidden =
+        true;
+
+      success.hidden =
+        false;
+
+      leadRef.textContent =
+        result.leadId ||
+        "Received";
+
+      success.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    } catch (error) {
+      const element =
+        $("#submitError");
+
+      element.textContent =
+        error.message ||
+        "Your request could not be sent. Please try again.";
+
+      element.hidden =
+        false;
+
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function save() {
+    const values =
+      {};
+
+    new FormData(form).forEach(
+      (value, key) => {
+        values[key] =
+          value;
+      }
+    );
+
+    sessionStorage.setItem(
+      STORE,
+      JSON.stringify({
+        packageSelected,
+        values,
+        tables:
+          Number(tables.value) || 0,
+        chairs:
+          Number(chairs.value) || 0,
+        deliveryQuote
+      })
+    );
+  }
+
+  function restore() {
+    try {
+      const saved =
+        JSON.parse(
+          sessionStorage.getItem(
+            STORE
+          ) || "null"
+        );
+
+      if (!saved) {
+        return;
+      }
+
+      packageSelected =
+        Boolean(
+          saved.packageSelected
+        );
+
+      Object.entries(
+        saved.values || {}
+      ).forEach(
+        ([key, value]) => {
+          if (form.elements[key]) {
+            form.elements[key].value =
+              value;
+          }
+        }
+      );
+
+      tables.value =
+        saved.tables || 0;
+
+      chairs.value =
+        saved.chairs || 0;
+
+      deliveryQuote =
+        saved.deliveryQuote || null;
+
+      if (
+        deliveryQuote &&
+        deliveryQuote.signature !==
+          quoteSignature()
+      ) {
+        deliveryQuote =
+          null;
+      }
+
+    } catch (_) {
+      deliveryQuote =
+        null;
+    }
+  }
+
+  function reset() {
+    form.reset();
+
+    form.state.value =
+      "TX";
+
+    tables.value =
+      0;
+
+    chairs.value =
+      0;
+
+    cardTables.value =
+      0;
+
+    cardChairs.value =
+      0;
+
+    packageSelected =
+      false;
+
+    deliveryQuote =
+      null;
+
+    sessionStorage.removeItem(
+      STORE
+    );
+
+    sessionStorage.removeItem(
+      SUB
+    );
+
+    $(".builderintro").hidden =
+      false;
+
+    form.hidden =
+      false;
+
+    success.hidden =
+      true;
+
+    review.hidden =
+      true;
+
+    $("#packageStatus").hidden =
+      true;
+
+    updateAll();
+
+    $("#rentals").scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+  function getSubmissionId() {
+    let id =
+      sessionStorage.getItem(
+        SUB
+      );
+
+    if (!id) {
+      id =
+        crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random()}`;
+
+      sessionStorage.setItem(
+        SUB,
+        id
+      );
+    }
+
+    return id;
+  }
+
+  function getAttribution() {
+    const query =
+      new URLSearchParams(
+        location.search
+      );
+
+    const referrer =
+      document.referrer || "";
+
+    let source =
+      query.get("utm_source") || "";
+
+    if (!source) {
+      source =
+        /google\./i.test(referrer)
+          ? "Google"
+          : /facebook\.|fb\./i.test(referrer)
+            ? "Facebook"
+            : referrer
+              ? "Referral"
+              : "Direct";
+    }
+
+    return {
+      leadSource:
+        source,
+
+      sourceDetail:
+        query.get(
+          "source_detail"
+        ) || "",
+
+      landingPage:
+        location.href,
+
+      referrer:
+        referrer,
+
+      utmSource:
+        query.get(
+          "utm_source"
+        ) || "",
+
+      utmMedium:
+        query.get(
+          "utm_medium"
+        ) || "",
+
+      utmCampaign:
+        query.get(
+          "utm_campaign"
+        ) || "",
+
+      utmContent:
+        query.get(
+          "utm_content"
+        ) || "",
+
+      utmTerm:
+        query.get(
+          "utm_term"
+        ) || ""
+    };
+  }
+
+  function formatDateTime(date, time) {
+    return new Date(
+      `${date}T${time}:00`
+    ).toLocaleString(
+      [],
+      {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit"
+      }
+    );
+  }
+
+  function money(value) {
+    return (
+      "$" +
+      Number(value || 0).toFixed(2)
+    );
+  }
+
+  function escapeHtml(value) {
+    return String(
+      value ?? ""
+    ).replace(
+      /[&<>"']/g,
+      (character) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        })[character]
+    );
+  }
+
+  function showError(id, text) {
+    const element =
+      $("#" + id);
+
+    element.textContent =
+      text;
+
+    element.hidden =
+      false;
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+
+    return false;
+  }
+
+  function clearError(id) {
+    const element =
+      $("#" + id);
+
+    if (!element) {
+      return;
+    }
+
+    element.hidden =
+      true;
+
+    element.textContent =
+      "";
+  }
+
+  function setSending(value) {
+    sending =
+      value;
+
+    confirm.disabled =
+      value;
+
+    const labels =
+      confirm.querySelectorAll(
+        "span"
+      );
+
+    labels[0].hidden =
+      value;
+
+    labels[1].hidden =
+      !value;
+  }
 })();
